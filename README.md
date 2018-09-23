@@ -15,7 +15,7 @@ A template is just a tree of files and properties that are stored inside a ZIP f
     |                 `-- sys/                     ## Sub package of %ROOT_PACKAGE%.
     |                     |-- Utils.java           ## Utils class of the package. 
     |                     `-- __MAIN_CLASS__.java  ## A class with name defined by property %MAIN_CLASS%.
-    |-- README.md                                  ## READM file.
+    |-- README.md                                  ## README file.
     `-- treetemplate.properties                    ## File explicity declaring the template properties and decriptions.
 
 
