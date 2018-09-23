@@ -108,7 +108,12 @@ TEMPLATE PROPERTIES:
 
 ## ...
 
+---------------------------------
 Saved: /tmp/some-project-generated.zip
+
+-----------------
+| Happy Coding! |
+-----------------
 
 ```
 
