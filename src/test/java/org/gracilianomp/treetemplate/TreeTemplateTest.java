@@ -31,18 +31,19 @@ public class TreeTemplateTest {
 
         Assert.assertEquals( 0 , treeThemplate.getPropertiesSize() );
 
+        treeThemplate.putProperty("PROJECT_NAME", "simple-project");
         treeThemplate.putProperty("TEST", "SimpleTest1");
         treeThemplate.putProperty("MAIN_CLASS", "SimpleMain");
         treeThemplate.putProperty("ROOT_PACKAGE", "org.simple");
 
-        Assert.assertEquals( 3 , treeThemplate.getPropertiesSize() );
+        Assert.assertEquals( 4 , treeThemplate.getPropertiesSize() );
 
         List<TreeEntry> entries = treeThemplate.getEntries();
 
-        assertEqualEntry(entries.get(0) , "template-test1/", 0) ;
-        assertEqualEntry(entries.get(1) , "template-test1/README.md", 54) ;
-        assertEqualEntry(entries.get(7) , "template-test1/src/main/java/__ROOT_PACKAGE__pack2path__/test/Foo.java", 54) ;
-        assertEqualEntry(entries.get(8) , "template-test1/src/main/java/__ROOT_PACKAGE__pack2path__/test/__MAIN_CLASS__.java", 64) ;
+        assertEqualEntry(entries.get(0) , "__PROJECT_NAME__/", 0) ;
+        assertEqualEntry(entries.get(1) , "__PROJECT_NAME__/README.md", 54) ;
+        assertEqualEntry(entries.get(7) , "__PROJECT_NAME__/src/main/java/__ROOT_PACKAGE__pack2path__/test/Foo.java", 54) ;
+        assertEqualEntry(entries.get(8) , "__PROJECT_NAME__/src/main/java/__ROOT_PACKAGE__pack2path__/test/__MAIN_CLASS__.java", 64) ;
 
         ////////////////////////////
 
@@ -60,10 +61,10 @@ public class TreeTemplateTest {
 
         Assert.assertEquals( 9 , entriesZip1.size() );
 
-        assertEqualEntry(entriesZip1.get(0) , "template-test1/", 0) ;
-        assertEqualEntry(entriesZip1.get(1) , "template-test1/README.md", 59) ;
-        assertEqualEntry(entriesZip1.get(7) , "template-test1/src/main/java/org/simple/test/Foo.java", 50) ;
-        assertEqualEntry(entriesZip1.get(8) , "template-test1/src/main/java/org/simple/test/SimpleMain.java", 58) ;
+        assertEqualEntry(entriesZip1.get(0) , "simple-project/", 0) ;
+        assertEqualEntry(entriesZip1.get(1) , "simple-project/README.md", 59) ;
+        assertEqualEntry(entriesZip1.get(7) , "simple-project/src/main/java/org/simple/test/Foo.java", 50) ;
+        assertEqualEntry(entriesZip1.get(8) , "simple-project/src/main/java/org/simple/test/SimpleMain.java", 58) ;
     }
 
     static private void assertEqualEntry( TreeEntry entry , String path , int size ) {

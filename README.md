@@ -7,7 +7,9 @@ Create templates for your projects.
 
 A template is just a tree of files and properties that are stored inside a ZIP file:
 
-    simple-java-template
+File: `template1.zip`
+
+    __PROJECT_NAME__/                              ## Root directory of the project.
     |-- src/
     |   `-- main/
     |       `-- java/
@@ -27,8 +29,9 @@ File `__MAIN_CLASS__.java`:
         
     }
     
-File `treetemplate.properties`:
+File `treetemplate.properties`, declaring properties and the descriptions:
 
+    PROJECT_NAME=Project name: will be used for root directory.
     MAIN_CLASS=Java Main class name
     ROOT_PACKAGE=Java root package
 
@@ -40,12 +43,13 @@ Using the template above, here is an example of the generated project:
 
 Defined properties:
 
+    PROJECT_NAME=simple-project
     MAIN_CLASS=MainFoo
     ROOT_PACKAGE=org.foo
 
 Generated tree:
 
-    simple-java-template
+    simple-project
     |-- src/
     |   `-- main/
     |       `-- java/
@@ -88,8 +92,9 @@ Destination of generated Zip file> /tmp/some-project-generated.zip
 
 ---------------------------------
 TEMPLATE PROPERTIES:
--- MAIN_CLASS: MainFoo
--- ROOT_PACKAGE: org.foo
+-- PROJECT_NAME (Project name: will be used for root directory.)=simple-project
+-- MAIN_CLASS (Java Main class name): MainFoo
+-- ROOT_PACKAGE (Java root package): org.foo
 
 ## ...
 

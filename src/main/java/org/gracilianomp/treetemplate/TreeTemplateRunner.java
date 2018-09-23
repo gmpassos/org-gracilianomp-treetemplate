@@ -44,7 +44,7 @@ public class TreeTemplateRunner {
 
 
             for (Map.Entry<Object, Object> entry : templateProperties.entrySet()) {
-                System.out.print("-- "+ entry.getKey() +": ");
+                System.out.print("-- "+ entry.getKey() +" ("+ entry.getValue()+"): ");
                 String line = scanner.nextLine().trim();
 
                 treeTemplate.putProperty(entry.getKey().toString() , line);

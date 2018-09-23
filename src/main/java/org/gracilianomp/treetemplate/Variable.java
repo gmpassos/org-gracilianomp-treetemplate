@@ -53,7 +53,9 @@ public class Variable implements CharSequence{
 
     public String resolve(Map<String,String> properties) {
         String val = properties.get(name) ;
-        if (val == null) val = "" ;
+        if (val == null) {
+            throw new IllegalStateException("Null variable: "+ name) ;
+        }
 
         if (filter != null) {
             val = filter.filter(val) ;
