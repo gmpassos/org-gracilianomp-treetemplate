@@ -19,7 +19,7 @@ A template is just a tree of files and properties that are stored inside a ZIP f
     `-- treetemplate.properties                    ## File explicity declaring the template properties and decriptions.
 
 
-File `\__MAIN_CLASS\__.java`:
+File `__MAIN_CLASS__.java`:
 
     package %ROOT_PACKAGE%.sys ;
     
