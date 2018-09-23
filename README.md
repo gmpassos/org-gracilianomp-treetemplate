@@ -29,7 +29,7 @@ File `__MAIN_CLASS__.java`:
         
     }
     
-File `treetemplate.properties`, declaring properties and the descriptions:
+File `treetemplate.properties`, declaring properties and their descriptions:
 
     PROJECT_NAME=Project name. Will be used for root directory
     MAIN_CLASS=Java Main class name
