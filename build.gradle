@@ -12,12 +12,15 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
-
 jar {
     manifest {
         attributes(
                 'Implementation-Title': 'Tree Template - By Graciliano M. P.'
         )
     }
+}
+
+run {
+    standardInput = System.in
 }
 

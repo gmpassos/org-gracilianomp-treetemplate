@@ -36,7 +36,7 @@ File `treetemplate.properties`:
 
 ## Template Generation Example
 
-Using the template above, here is an example of generated project: 
+Using the template above, here is an example of the generated project: 
 
 Defined properties:
 
@@ -63,6 +63,33 @@ Generated `MainFoo.java`:
     public class MainFoo {
         
     }
+
+## Running
+
+After clone the project with git:
+
+```
+
+$> ./gradlew run --console=plain
+
+## ... Will prompt for:
+
+Template Zip file> /tmp/some-template.zip
+Destination of generated Zip file> /tmp/some-project-generated.zip 
+
+## ... Will ask for properties values:
+
+---------------------------------
+TEMPLATE PROPERTIES:
+-- MAIN_CLASS: MainFoo
+-- ROOT_PACKAGE: org.foo
+
+## ...
+
+Saved: /tmp/some-project-generated.zip
+
+```
+
 
 ## Requirements
 

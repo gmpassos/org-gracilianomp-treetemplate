@@ -27,7 +27,7 @@ public class TreeTemplateRunner {
         Scanner scanner = new Scanner(System.in);
 
         File templatFile = new File( ask(scanner, args, 0, "Template Zip file") ) ;
-        File saveFile = new File( ask(scanner, args, 1, "Generate destination Zip file") ) ;
+        File saveFile = new File( ask(scanner, args, 1, "Destination of generated Zip file") ) ;
 
         TreeTemplate treeTemplate = new TreeTemplate(templatFile);
 
