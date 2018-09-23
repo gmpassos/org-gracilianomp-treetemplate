@@ -66,7 +66,14 @@ Generated `MainFoo.java`:
 
 ## Running
 
-After clone the project with git:
+First clone this project:
+
+```
+$> git clone https://github.com/gmpassos/org-gracilianomp-treetemplate.git
+$> cd org-gracilianomp-treetemplate
+```
+
+Now you can build and run the project:
 
 ```
 
