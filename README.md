@@ -1,7 +1,7 @@
 Tree Template - By Graciliano M. P.
 ========
 
-Create templates for your projects.
+An easy way to create templates for your projects.
 
 ## Template Example
 
@@ -36,6 +36,15 @@ File `treetemplate.properties`, declaring properties and the descriptions:
     ROOT_PACKAGE=Java root package
 
 * `treetemplate.properties` Will be loaded and removed from generated tree
+
+## Template Properties
+
+The properties of a template should be declared in the file `treetemplate.properties`.
+
+The format of a property/variable name should be uppercase using only `_`, letters and numbers: `[A-Z0-9_]+`
+
+A variable can be used inside files with `%VAR_NAME%`, or in file/directory names with `__VAR_NAME__`
+
 
 ## Template Generation Example
 
