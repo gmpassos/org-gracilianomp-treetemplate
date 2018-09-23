@@ -41,7 +41,7 @@ File `treetemplate.properties`, declaring properties and their descriptions:
 
 The properties of a template should be declared in the file `treetemplate.properties`.
 
-The format of a property/variable name should be uppercase using only `_`, letters and numbers: `[A-Z0-9_]+`
+The format of a property/variable name should be uppercase, using only `_`, letters and numbers: `[A-Z0-9_]+`
 
 A variable can be used inside files with `%VAR_NAME%`, or in file/directory names with `__VAR_NAME__`
 
