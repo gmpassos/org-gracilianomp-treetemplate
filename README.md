@@ -86,7 +86,7 @@ $> git clone https://github.com/gmpassos/org-gracilianomp-treetemplate.git
 $> cd org-gracilianomp-treetemplate
 ```
 
-Now you can build and run the project:
+Now you can build and run Tree Template:
 
 ```
 
