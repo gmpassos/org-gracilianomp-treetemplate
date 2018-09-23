@@ -54,7 +54,13 @@ public class TreeTemplateRunner {
 
         byte[] ok = treeTemplate.generateToFile(saveFile);
 
-        if (ok != null) System.out.println("Saved: "+ saveFile);
+        if (ok != null) {
+            System.out.println("Saved: "+ saveFile);
+            System.out.println("-----------------");
+            System.out.println("| Happy Coding! |");
+            System.out.println("-----------------");
+
+        }
 
     }
 

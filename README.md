@@ -104,6 +104,7 @@ TEMPLATE PROPERTIES:
 -- PROJECT_NAME (Project name. Will be used for root directory)=simple-project
 -- MAIN_CLASS (Java Main class name): MainFoo
 -- ROOT_PACKAGE (Java root package): org.foo
+---------------------------------
 
 ## ...
 
