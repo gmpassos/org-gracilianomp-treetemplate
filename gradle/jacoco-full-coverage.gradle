@@ -1,0 +1,151 @@
+apply plugin:'java'
+apply plugin:'jacoco'
+
+repositories {
+	jcenter()
+}
+
+def excludeJacocoProjectsNames() {
+    def params = project.ext
+    def excludeString = params.has('jacocoFullMergeExclude') ? params['jacocoFullMergeExclude'] : "#@!"
+    def excludeArray = excludeString.split(",")
+    excludeArray = excludeArray.collectMany { ["${it}" , "${project.name}-${it}"] }
+	return excludeArray ;
+}
+
+def excludeJacocoProjects() {
+    def excludeArray = excludeJacocoProjectsNames() ;
+	def projs = subprojects.findAll { excludeArray.contains("${it.project.name}") }
+	return projs
+}
+
+def notExcludeJacocoProjects() {
+	def excludeArray = excludeJacocoProjectsNames() ;
+	def projs = subprojects.findAll { !excludeArray.contains("${it.project.name}") }
+	return projs
+}
+
+boolean isJacocoFullMergeIT() {
+	def params = project.ext
+    def jacocoFullMergeITStr = params.has('jacocoFullMergeIT') ? params['jacocoFullMergeIT'] : "false"
+    return jacocoFullMergeITStr.toBoolean()
+}
+
+task jacocoFullMerge(type: JacocoMerge) {
+	mustRunAfter subprojects.test
+	mustRunAfter subprojects.integrationTest
+
+	def jacocoProjects = notExcludeJacocoProjects() ;
+	boolean jacocoFullMergeIT = isJacocoFullMergeIT() ;
+    
+    if (jacocoFullMergeIT) {
+		jacocoClasspath = files(jacocoProjects.jacocoTestReport.jacocoClasspath, jacocoProjects.jacocoIntegrationTestReport.jacocoClasspath)
+	    executionData = files(jacocoProjects.jacocoTestReport.executionData, jacocoProjects.jacocoIntegrationTestReport.executionData)
+    }
+    else {
+		jacocoClasspath = files(jacocoProjects.jacocoTestReport.jacocoClasspath)
+	    executionData = files(jacocoProjects.jacocoTestReport.executionData)
+    }
+    
+    destinationFile = file("$buildDir/jacoco/fullMerge.exec")
+    
+  	onlyIf = {
+        !files(executionData.findAll { it.exists() }).empty
+    }
+    doFirst {
+    	executionData = files(executionData.findAll { it.exists() })
+  	}
+  	doLast {
+  		if (jacocoFullMergeIT) {
+    		println "-- Adding integrationTest to jacocoFullMerge task!"
+    	}
+    	
+    	def jacocoProjectsExcluded = excludeJacocoProjects() ;
+    	
+    	if ( !jacocoProjectsExcluded.empty ) {
+        	println "-- Excluded projects from jacocoFullMerge: ${jacocoProjectsExcluded.size()}  ${jacocoProjectsExcluded.collect { it.name } }"
+        }
+  	}
+}
+
+task jacocoFullTestReport(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
+    dependsOn jacocoFullMerge
+    
+    def jacocoProjects = notExcludeJacocoProjects() ;
+    
+    additionalSourceDirs = files(jacocoProjects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(jacocoProjects.sourceSets.main.allSource.srcDirs)
+    classDirectories = files(jacocoProjects.sourceSets.main.output)
+    
+    executionData = files("$buildDir/jacoco/fullMerge.exec")
+
+    reports {
+        html.enabled = true
+    }
+}
+
+task jacocoFullTestCoverageVerification(type: org.gradle.testing.jacoco.tasks.JacocoCoverageVerification) {
+    dependsOn jacocoFullMerge
+    dependsOn jacocoTestCoverageVerification
+    
+    def jacocoProjects = notExcludeJacocoProjects() ;
+    
+    additionalSourceDirs = files(jacocoProjects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(jacocoProjects.sourceSets.main.allSource.srcDirs)
+    classDirectories = files(jacocoProjects.sourceSets.main.output)
+    
+    executionData = files("$buildDir/jacoco/fullMerge.exec")
+}
+
+task printJacocoFullCoverage {
+	dependsOn jacocoFullTestReport
+
+    doLast {
+        File jacocoReport = new File("${project.buildDir}/reports/jacoco/jacocoFullTestReport/html/index.html")
+        
+        if (jacocoReport.exists()) {
+        	def jacocoProjectsExcluded = excludeJacocoProjects() ;
+        	def jacocoProjects = notExcludeJacocoProjects() ;
+        
+        	def parsedReport = jacocoReport.text
+        	.find("Total</td><td class=\"bar\">(.*?) of (.*?)</td>")
+        	.replace("Total</td><td class=\"bar\">", "")
+        	.replace("</td>", "")
+        	.replace(",", "")
+
+        	def (uncoveredInstructionsStr, numberInstructionsStr) = parsedReport.tokenize(" of ")
+
+        	int uncovInt = uncoveredInstructionsStr.toInteger()
+        	int numInt = numberInstructionsStr.toInteger()
+        	int covInt = numInt - uncovInt ;
+        	
+        	boolean jacocoFullMergeIT = isJacocoFullMergeIT() ;
+        	
+        	println "-----------------------------------------------------------------"
+        	println "                   ** JaCoCo Full Coverage **"
+        	println "-----------------------------------------------------------------"
+        	
+        	if ( !jacocoProjectsExcluded.empty ) {
+        		println "Excluded jacocoProjects: ${jacocoProjectsExcluded.size()}\n  ${jacocoProjectsExcluded.collect { it.name } }\n"
+        	}
+        	
+        	println "Merged jacocoProjects: ${jacocoProjects.size()} \n  ${jacocoProjects.collect { it.name } }\n"
+        	println "[${project.name}] Full number of instructions: ${numberInstructionsStr}"
+        	println "[${project.name}] Full number of covered instructions: ${covInt}"
+        	println "[${project.name}] Full number of uncovered instructions: ${uncoveredInstructionsStr}"
+        	
+        	if (numInt > 0) {
+        		double cc = (100 * (1 - (uncovInt / numInt)))
+        		println "[${project.name}] Full code coverage: ${cc}%"
+        	}
+        	
+        	if (jacocoFullMergeIT) {
+        		println "\n- Subprojects coverage merged with integrationTest!"
+        	}
+        	
+			println "-----------------------------------------------------------------"
+        } else {
+        	throw new GradleException("${project.name} does not have a JaCoCo test report, this may be due to a missing \'test\' source set. Please run 'test' task before!")
+        }
+    }
+}

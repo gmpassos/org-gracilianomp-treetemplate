@@ -1,0 +1,52 @@
+/********************************************
+ **     Single Project Gradle build file   **
+ ********************************************/
+
+apply from: "${rootDir}/gradle/base-project-java8.gradle"
+
+task showProjectName {
+	doLast {
+		println "It Works ${project.name}, dependencies updated!"	
+	}
+}
+
+task refreshDependencies(type: Exec) {
+    workingDir "${rootProject.projectDir}"
+    commandLine './gradlew', 'showProjectName', '--refresh-dependencies'
+}
+
+task printJacoco {
+    doLast {
+        int totalUncoveredInstructions = 0
+        int totalNumberInstructions = 0
+        
+        File jacocoReport = new File("${project.buildDir}/reports/jacoco/test/html/index.html")
+        if (jacocoReport) {
+        	def parsedReport = jacocoReport.text
+        	.find("Total</td><td class=\"bar\">(.*?) of (.*?)</td>")
+        	.replace("Total</td><td class=\"bar\">", "")
+        	.replace("</td>", "")
+        	.replace(",", "")
+
+        	def (uncoveredInstructionsStr, numberInstructionsStr) = parsedReport.tokenize(" of ")
+
+        	def uncovInt = uncoveredInstructionsStr.toInteger()
+        	def numInt = numberInstructionsStr.toInteger()
+
+        	totalUncoveredInstructions += uncovInt
+        	totalNumberInstructions += numInt
+
+        	println "${project.name}\'s number of instructions: ${numberInstructionsStr}"
+        	println "${project.name}\'s number of uncovered instructions: ${uncoveredInstructionsStr}"
+        	if (numInt > 0) {
+        		double cc = (100 * (1 - (uncovInt / numInt)))
+        		println "${project.name}\'s code coverage: ${cc}%"
+        	}
+        } else {
+        	throw new GradleException("${project.name} does not have a JaCoCo test report, this may be due to a missing \'test\' source set")
+        }
+    }
+}
+
+eclipseProject.dependsOn(refreshDependencies)
+printJacoco.dependsOn(jacocoTestReport)
