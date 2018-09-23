@@ -9,7 +9,7 @@ A template is just a tree of files and properties that are stored inside a ZIP f
 
 File: `template1.zip`
 
-    __PROJECT_NAME__/                              ## Root directory of the project.
+    __PROJECT_NAME__/                              ## Root directory of the project, using the property %PROJECT_NAME%.
     |-- src/
     |   `-- main/
     |       `-- java/
@@ -31,7 +31,7 @@ File `__MAIN_CLASS__.java`:
     
 File `treetemplate.properties`, declaring properties and the descriptions:
 
-    PROJECT_NAME=Project name: will be used for root directory.
+    PROJECT_NAME=Project name. Will be used for root directory
     MAIN_CLASS=Java Main class name
     ROOT_PACKAGE=Java root package
 
@@ -92,7 +92,7 @@ Destination of generated Zip file> /tmp/some-project-generated.zip
 
 ---------------------------------
 TEMPLATE PROPERTIES:
--- PROJECT_NAME (Project name: will be used for root directory.)=simple-project
+-- PROJECT_NAME (Project name. Will be used for root directory)=simple-project
 -- MAIN_CLASS (Java Main class name): MainFoo
 -- ROOT_PACKAGE (Java root package): org.foo
 
