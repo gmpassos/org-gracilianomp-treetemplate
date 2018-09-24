@@ -136,6 +136,18 @@ public class TreeTemplate {
 
     private Properties templateProperties ;
 
+    public List<String> getTemplatePropertiesKeys() {
+        ArrayList<String> keys = new ArrayList<>();
+
+        for (Object k : templateProperties.keySet()) {
+            keys.add(k.toString());
+        }
+
+        Collections.sort(keys);
+
+        return keys ;
+    }
+
     public Properties getTemplateProperties() {
         return templateProperties;
     }
@@ -168,7 +180,15 @@ public class TreeTemplate {
             return templateURI.toURL().openStream() ;
         }
         else if ( scheme.startsWith("file") ) {
-            return new FileInputStream(new File(templateURI)) ;
+            File file = new File(templateURI);
+
+            if (file.isDirectory()) {
+                byte[] zipFromDir = StreamUtils.generateZip(file, treeEntryFilter);
+                return new ByteArrayInputStream(zipFromDir) ;
+            }
+            else {
+                return new FileInputStream(file) ;
+            }
         }
         else {
             throw new UnsupportedOperationException("Unsupported scheme: "+ scheme);
@@ -184,13 +204,11 @@ public class TreeTemplate {
     public byte[] generate() {
         if ( !isLoaded() ) throw new IllegalStateException("Not loaded yet!") ;
 
-        LOGGER.info("Generating using properties:");
-
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            LOGGER.info("-- {}: {}", entry.getKey(), entry.getValue());
-        }
+        showProperties("Generating using properties:");
 
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
+
+        HashMap<String,String> dirs = new HashMap<>();
 
         try ( ZipOutputStream zipOut = new ZipOutputStream(bout) ) {
 
@@ -198,26 +216,127 @@ public class TreeTemplate {
 
                 TreeEntry treeEntry = entry.getValue();
 
-                byte[] data = treeEntry.resolveData(properties) ;
+                LOGGER.info("Resolving path: {}", treeEntry.getPath());
 
                 String resolvedName = treeEntry.resolveName(properties);
 
-                ZipEntry zipEntry = new ZipEntry(resolvedName);
-                zipOut.putNextEntry(zipEntry);
-
-                if ( !treeEntry.isDirectory() ) {
-                    zipOut.write(data);
-                    zipOut.flush();
+                if ( treeEntry.isDirectory() ) {
+                    if ( !resolvedName.endsWith("/") ) resolvedName += "/" ;
                 }
 
-                LOGGER.info("Generated: {}", resolvedName);
+                String entryDir = resolvedName.replaceFirst("[^/]+$", "") ;
+
+                if ( !entryDir.isEmpty() ) {
+                    if ( !dirs.containsKey(entryDir) ) {
+                        ZipEntry zipEntry = new ZipEntry(entryDir);
+                        zipEntry.setTime(treeEntry.getTime());
+                        zipOut.putNextEntry(zipEntry);
+
+                        dirs.put(entryDir,entryDir) ;
+                        LOGGER.info("Generated dir[auto]: {}", entryDir);
+                    }
+                }
+
+                LOGGER.info("Parsing data: {}", resolvedName);
+
+                byte[] data = treeEntry.resolveData(properties) ;
+
+                ZipEntry zipEntry = new ZipEntry(resolvedName);
+                zipEntry.setTime(treeEntry.getTime());
+
+                if ( !treeEntry.isDirectory() ) {
+                    zipOut.putNextEntry(zipEntry);
+                    zipOut.write(data);
+                    zipOut.flush();
+
+                    LOGGER.info("Generated file: {}", resolvedName);
+                }
+                else if ( !dirs.containsKey(entryDir) ) {
+                    zipOut.putNextEntry(zipEntry);
+                    dirs.put(resolvedName, entryDir);
+                    LOGGER.info("Generated dir: {}", resolvedName);
+                }
+
+            }
+
+            {
+                String propertiesStr = toProperties(this.properties);
+
+                ZipEntry zipEntry = new ZipEntry("treetemplate-generation.properties");
+                zipEntry.setTime(System.currentTimeMillis());
+
+                LOGGER.info("Adding {}:\n{}", zipEntry.getName() , propertiesStr);
+
+                zipOut.putNextEntry(zipEntry);
+                zipOut.write( propertiesStr.getBytes(StringTemplate.CHARSET_UTF8));
+                zipOut.flush();
+            }
+
+        }
+        catch (IOException e) {
+            throw new IllegalStateException("Can't generate template: "+ templateURI, e) ;
+        }
+
+        byte[] zipData = bout.toByteArray();
+
+        checkGeneratedZipData(zipData);
+
+        showProperties("Generated using properties:");
+
+        return zipData;
+    }
+
+    private String toProperties(HashMap<String,String> properties) {
+        StringBuilder str = new StringBuilder();
+
+        ArrayList<String> keys = new ArrayList<>(properties.keySet());
+        Collections.sort(keys);
+
+        for (String key : keys) {
+            String val = properties.get(key);
+            str.append(key) ;
+            str.append("=") ;
+            str.append(val) ;
+            str.append("\n") ;
+        }
+
+        return str.toString() ;
+    }
+
+    private void showProperties(String title) {
+        LOGGER.info("--------------------------------------------------------------");
+        LOGGER.info(title);
+
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            LOGGER.info("-- {}: {}", entry.getKey(), entry.getValue());
+        }
+        LOGGER.info("--------------------------------------------------------------");
+    }
+
+    private void checkGeneratedZipData(byte[] zipData) {
+        try {
+            HashMap<String,Boolean> entries = new HashMap<>();
+
+            try ( ZipInputStream zin = new ZipInputStream(new ByteArrayInputStream(zipData)) ) {
+
+                ZipEntry entry;
+                while ( (entry =  zin.getNextEntry()) != null ) {
+
+                    LOGGER.info("ZipEntry> name: {} ; dir: {}", entry.getName(), entry.isDirectory());
+
+                    if ( entries.containsKey(entry.getName()) ) {
+                        throw new IllegalStateException("Duplicated entry: "+ entry.getName() +" -> "+ entries.get(entry.getName()) ) ;
+                    }
+
+                    entries.put( entry.getName() , entry.isDirectory() ) ;
+
+                }
+
             }
         }
         catch (IOException e) {
-            throw new IllegalStateException("Can't generate template: "+ templateURI) ;
+            throw new IllegalStateException("Can't read generated zip!") ;
         }
-
-        return bout.toByteArray() ;
     }
 
 

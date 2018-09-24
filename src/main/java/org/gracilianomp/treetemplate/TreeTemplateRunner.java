@@ -1,12 +1,19 @@
 package org.gracilianomp.treetemplate;
 
+import org.gracilianomp.utils.StreamUtils;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
 public class TreeTemplateRunner {
+
+    static private File askFile(Scanner scanner, String[] args, int idx, String inputDesc) {
+        String value = ask(scanner, args, idx, inputDesc);
+        return value != null ? new File(value) : null ;
+    }
 
     static private String ask(Scanner scanner, String[] args, int idx, String inputDesc) {
         if (args != null && args.length > idx) {
@@ -19,35 +26,49 @@ public class TreeTemplateRunner {
 
         System.out.print(inputDesc+"> ");
         String line = scanner.nextLine();
-        return line ;
+        return line.isEmpty() ? null : line ;
     }
 
     public static void main(String[] args) throws IOException {
 
         Scanner scanner = new Scanner(System.in);
 
-        File templatFile = new File( ask(scanner, args, 0, "Template Zip file") ) ;
-        File saveFile = new File( ask(scanner, args, 1, "Destination of generated Zip file") ) ;
+        File templateFile = askFile(scanner, args, 0, "Template Zip file") ;
+        File saveFile = askFile(scanner, args, 1, "Destination of generated Zip file") ;
+        File inputPropertiesFile = askFile(scanner, args, 2, "Input Properties file") ;
 
-        TreeTemplate treeTemplate = new TreeTemplate(templatFile);
+        TreeTemplate treeTemplate = new TreeTemplate(templateFile);
 
-        System.out.println("LOADING: "+ templatFile);
+        System.out.println("LOADING: "+ templateFile);
         treeTemplate.load();
-
-
 
         Properties templateProperties = treeTemplate.getTemplateProperties();
 
         if (templateProperties != null && !templateProperties.isEmpty()) {
+
+            Properties inputProperties = inputPropertiesFile != null ? StreamUtils.readProperties(inputPropertiesFile) : new Properties() ;
+
             System.out.println("---------------------------------");
             System.out.println("TEMPLATE PROPERTIES:");
 
+            List<String> templatePropertiesKeys = treeTemplate.getTemplatePropertiesKeys();
 
-            for (Map.Entry<Object, Object> entry : templateProperties.entrySet()) {
-                System.out.print("-- "+ entry.getKey() +" ("+ entry.getValue()+"): ");
-                String line = scanner.nextLine().trim();
+            for (String key : templatePropertiesKeys) {
+                String val = templateProperties.getProperty(key) ;
 
-                treeTemplate.putProperty(entry.getKey().toString() , line);
+                Object inProp = inputProperties.get(key) ;
+
+                if ( inProp != null ) {
+                    String input = inProp.toString() ;
+                    System.out.println("-- "+ key +" ("+val+") = "+ input);
+                    treeTemplate.putProperty(key , input);
+                }
+                else {
+                    System.out.print("-- "+ key +" ("+val+"): ");
+                    String line = scanner.nextLine().trim();
+                    treeTemplate.putProperty(key , line);
+                }
+
             }
             System.out.println("---------------------------------");
         }

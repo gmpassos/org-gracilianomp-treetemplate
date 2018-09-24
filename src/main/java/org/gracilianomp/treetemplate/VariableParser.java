@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,7 +16,7 @@ public class VariableParser {
     static final public String REGEXP_VARIABLE = "[A-Z0-9_]+?" ;
     static final public String REGEXP_FILTER = "[a-z0-9]+?" ;
 
-    static final public Pattern PATTERN_TEMPLATE_VARIABLE = Pattern.compile("(?s:%("+REGEXP_VARIABLE+")%(?:("+REGEXP_FILTER+")__)?)") ;
+    static final public Pattern PATTERN_TEMPLATE_VARIABLE = Pattern.compile("(?s:%("+REGEXP_VARIABLE+")(?:%|__("+REGEXP_FILTER+")%))") ;
     static final public Pattern PATTERN_TEMPLATE_PATH_VARIABLE = Pattern.compile("(?s:__("+REGEXP_VARIABLE+")__(?:("+REGEXP_FILTER+")__)?)") ;
 
     static public boolean containsVariable(byte[] s) {
@@ -28,7 +29,7 @@ public class VariableParser {
     }
 
 
-    static public CharSequence[] parse(String string, boolean pathPattern) {
+    static public CharSequence[] parse(String string, boolean pathPattern, Map<String, String> properties) {
         Pattern pattern = pathPattern ? PATTERN_TEMPLATE_PATH_VARIABLE : PATTERN_TEMPLATE_VARIABLE;
 
         Matcher matcher = pattern.matcher(string);
@@ -42,17 +43,28 @@ public class VariableParser {
             if (!prev.isEmpty()) parts.add(prev);
 
             String varName = matcher.group(1);
-            String filterName = matcher.group(2);
 
-            VariableFilter filter = null ;
-            if (filterName != null) {
-                filter = VariableFilter.getByName(filterName) ;
+            if ( properties != null && !properties.containsKey(varName) ) {
+                String part = matcher.group();
+
+                LOGGER.info("Ignore null property '{}' in part: {}", varName, part );
+
+                parts.add(part);
+            }
+            else {
+                String filterName = matcher.group(2);
+
+                VariableFilter filter = null ;
+                if (filterName != null) {
+                    filter = VariableFilter.getByName(filterName) ;
+                }
+
+                LOGGER.info("Parsing variable: {} ; filter: {}", varName, filter );
+
+                Variable var = new Variable(pathPattern, varName, filter);
+                parts.add(var);
             }
 
-            LOGGER.info("Parsing variable: {} ; filter: {}", varName, filter );
-
-            Variable var = new Variable(pathPattern, varName, filter);
-            parts.add(var);
 
             pos = matcher.end() ;
         }

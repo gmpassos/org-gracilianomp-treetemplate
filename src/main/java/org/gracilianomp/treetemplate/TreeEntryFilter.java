@@ -16,8 +16,9 @@ public interface TreeEntryFilter {
     class GitignoreFilter implements TreeEntryFilter {
         @Override
         public boolean accept(String path) {
-            if (path.matches("(?:^\\.git/.*|^\\.git$|/^.*?\\.git/.* )")) return false ;
-            if (path.matches("(?:^__MACOSX/.*|^__MACOSX$|/^.*?__MACOSX/.*)")) return false ;
+            if (path.matches("(?:^\\.git/.*|^/?\\.git/?$|/^.*?/.git/.*)")) return false ;
+            if (path.matches("(?:^__MACOSX/.*|^/?__MACOSX/?$|/^.*?/__MACOSX/.*)")) return false ;
+            if (path.matches("(?:^\\.DS_Store/.*|^/?\\.DS_Store/?$|/^.*?/\\.DS_Store/.*)")) return false ;
             return true ;
         }
     }

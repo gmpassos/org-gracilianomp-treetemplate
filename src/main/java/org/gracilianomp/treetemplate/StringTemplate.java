@@ -16,8 +16,12 @@ public class StringTemplate {
     private boolean pathPattern ;
 
     public StringTemplate(String string, boolean pathPattern) {
+        this(string, pathPattern, null) ;
+    }
+
+    public StringTemplate(String string, boolean pathPattern, Map<String,String> properties) {
         this.pathPattern = pathPattern ;
-        this.parts = VariableParser.parse(string, pathPattern) ;
+        this.parts = VariableParser.parse(string, pathPattern, properties) ;
     }
 
 

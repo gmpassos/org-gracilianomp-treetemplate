@@ -72,14 +72,14 @@ public class TreeEntry {
     }
 
     public String resolveName(Map<String,String> properties ) {
-        StringTemplate stringThemplate = new StringTemplate(this.path, true);
+        StringTemplate stringThemplate = new StringTemplate(this.path, true, properties);
         String resolved = stringThemplate.resolve(properties);
         return normalizePath( directory, resolved );
     }
 
     public byte[] resolveData( Map<String,String> properties ) {
         if ( this.dataString != null ) {
-            StringTemplate stringThemplate = new StringTemplate(this.dataString, false);
+            StringTemplate stringThemplate = new StringTemplate(this.dataString, false, properties);
             return stringThemplate.resolveAsBytes(properties);
         }
         else {
@@ -93,7 +93,7 @@ public class TreeEntry {
                 "directory='" + directory + '\'' +
                 ",path='" + path + '\'' +
                 ", time=" + time +
-                ", dataSize=" + getDataSize() +
+                ( isDirectory() ? ", dir" : ", dataSize=" + getDataSize() ) +
                 '}';
     }
 }
