@@ -26,7 +26,7 @@ public class TreeTemplateRunner {
 
         System.out.print(inputDesc+"> ");
         String line = scanner.nextLine();
-        return line.isEmpty() ? null : line ;
+        return line.isEmpty() ? null : line.trim() ;
     }
 
     public static void main(String[] args) throws IOException {
