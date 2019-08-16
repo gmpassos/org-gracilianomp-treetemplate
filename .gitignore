@@ -2,7 +2,7 @@
 
 ### Eclipse ###
 
-.metadata
+.updateMetadata
 bin/
 tmp/
 *.tmp
@@ -177,7 +177,7 @@ Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
 
-# Folder config file
+# Folder json file
 Desktop.ini
 
 # Recycle Bin used on file shares
@@ -196,7 +196,7 @@ $RECYCLE.BIN/
 .gradle
 build
 
-# Ignore Gradle GUI config
+# Ignore Gradle GUI json
 gradle-app.setting
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)

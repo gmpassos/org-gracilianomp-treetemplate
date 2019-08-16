@@ -1,5 +1,5 @@
-apply from: 'gradle/single-project-java8.gradle'
-apply from: 'gradle/logback.gradle'
+apply from: 'https://raw.githubusercontent.com/sapience-foundation/gradle-scripts/master/v5/single-project-java8.gradle'
+apply from: 'https://raw.githubusercontent.com/sapience-foundation/gradle-scripts/master/v5/logback.gradle'
 apply plugin: 'application'
 
 mainClassName = "org.gracilianomp.treetemplate.TreeTemplateRunner"

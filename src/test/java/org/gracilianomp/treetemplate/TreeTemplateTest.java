@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -55,16 +54,23 @@ public class TreeTemplateTest {
 
         treeThemplateZip1.load();
 
-        Assert.assertEquals( 9 , treeThemplateZip1.getEntriesSize() );
+        System.out.println( "---------------------------" );
+        for(TreeEntry entry : treeThemplateZip1.getEntries()) {
+          System.out.println( entry );
+        }
+        System.out.println( "---------------------------" );
+
+        Assert.assertEquals(10 , treeThemplateZip1.getEntriesSize() );
 
         List<TreeEntry> entriesZip1 = treeThemplateZip1.getEntries();
 
-        Assert.assertEquals( 9 , entriesZip1.size() );
+        Assert.assertEquals( 10 , entriesZip1.size() );
 
         assertEqualEntry(entriesZip1.get(0) , "simple-project/", 0) ;
         assertEqualEntry(entriesZip1.get(1) , "simple-project/README.md", 59) ;
         assertEqualEntry(entriesZip1.get(7) , "simple-project/src/main/java/org/simple/test/Foo.java", 50) ;
         assertEqualEntry(entriesZip1.get(8) , "simple-project/src/main/java/org/simple/test/SimpleMain.java", 58) ;
+        assertEqualEntry(entriesZip1.get(9) , "treetemplate-generation.properties", -1) ;
     }
 
     static private void assertEqualEntry( TreeEntry entry , String path , int size ) {
@@ -72,7 +78,10 @@ public class TreeTemplateTest {
         LOGGER.info("ASSERT EQ> {} == {} ; {}", entry , path, size );
 
         Assert.assertEquals( path , entry.getPath() );
-        Assert.assertEquals( size , entry.getDataSize() );
+
+        if (size >= 0) {
+            Assert.assertEquals(size, entry.getDataSize());
+        }
 
     }
 
